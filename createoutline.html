@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yaddaverse - Episode Creator Step 1</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<style>
+		.ribbon {
+		background-color: #f2f2f2;
+		color: #333333;
+		padding: 10px 0; /* Adjust the padding to increase/decrease the height of the ribbon */
+		text-align: center;
+		font-size: 18px; /* Adjust the font size as needed */
+		font-weight: bold;
+		text-transform: uppercase;
+		}
+	</style>
+</head>
+<body>
+	<div class="ribbon">
+	  Episode Creation Tool
+	</div>
+    <div class="container">
+        <h1 class="text-center mt-5 mb-5">Step 1 - Create Outline</h1>
+
+        <!-- Row for IP Dropdown -->
+        <div class="row mt-5 mb-3">
+            <div class="col-md-6 offset-md-3">
+                <label for="ip">IP</label>
+                <select class="form-control" id="ip" name="ip">
+                    <option>Friends</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Row for Character Selection -->
+        <div class="row mb-3">
+            <div class="col-md-6 offset-md-3">
+                <label>Select Characters:</label>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <input type="checkbox" name="character" value="Joey"> Joey<br>
+                        <input type="checkbox" name="character" value="Chandler"> Chandler<br>
+                        <input type="checkbox" name="character" value="Ross"> Ross<br>
+                    </div>
+                    <div>
+                        <input type="checkbox" name="character" value="Monica"> Monica<br>
+                        <input type="checkbox" name="character" value="Rachel"> Rachel<br>
+                        <input type="checkbox" name="character" value="Phoebe"> Phoebe<br>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row for Plot Type Selection -->
+        <div class="row mb-3">
+            <div class="col-md-6 offset-md-3">
+                <label for="plotType">Plot Archetype:</label>
+                <select class="form-control" id="plotType" name="plotType">
+                    <option>Back to School</option>
+                    <option>Drama</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Row for Custom Plot Details Textarea -->
+        <div class="row mb-3">
+            <div class="col-md-6 offset-md-3">
+                <label for="customPlot">Custom Plot Details (Optional):</label>
+                <textarea class="form-control" id="customPlot" rows="4"></textarea>
+            </div>
+        </div>
+
+        <!-- Row for Episode Focus Dropdown -->
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <label for="episodeFocus">Episode Focuses On:</label>
+                <select class="form-control" id="episodeFocus" name="episodeFocus">
+                    <option>Chandler</option>
+					<option>Joey</option>
+					<option>Monica</option>
+					<option>Phoebe</option>
+					<option>Rachel</option>
+					<option>Ross</option>			
+                </select>
+            </div>
+        </div>
+
+        <!-- Row for Generate Button -->
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3 text-center">
+                <button class="btn btn-primary">Generate Episode Outline</button>
+            </div>
+        </div>
+    </div>
+	<pre id="sessionDataDisplay"></pre>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="episodecreator.js"></script>
+</body>
+</html>

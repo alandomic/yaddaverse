@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yaddaverse - Episode Creator Step 3</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+		.ribbon {
+		background-color: #f2f2f2;
+		color: #333333;
+		padding: 10px 0; /* Adjust the padding to increase/decrease the height of the ribbon */
+		text-align: center;
+		font-size: 18px; /* Adjust the font size as needed */
+		font-weight: bold;
+		text-transform: uppercase;
+		}
+        .scene {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+		.scene h5 {
+			margin: 0 0 5px 0;  /* top right bottom left */
+		}
+
+		.scene p {
+			margin: 5px 0;
+		}
+		.scene textarea {
+			margin: 10px 0;
+		}
+        .center-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+			margin: 0 0 100px 0;
+        }
+		.act-flex-container {
+			display: flex;
+			align-items: baseline; 
+		}
+
+		#act-selector {
+			width: 100px; 
+			margin-left: 20px; 
+		}
+    </style>
+</head>
+
+<body>
+	<div class="ribbon">
+		Episode Creation Tool
+	</div>
+
+<div class="container">
+
+    <h1 class="text-center mt-5 mb-5">Step 3 - Edit and Save Draft</h1>
+
+
+	<div class="form-group act-flex-container">
+		<label for="act-selector">Act</label>
+		<select id="act-selector" class="form-control">
+
+		</select>
+	</div>
+
+
+    <!-- Scenes -->
+    <div class="row" id="scenes-container">
+
+    </div>
+
+    <div class="center-btn mt-5">
+        <button class="btn btn-success" id="save-draft">Save Draft to Disk</button>
+    </div>
+	</div>
+	<pre id="sessionDataDisplay"></pre>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.2.2/jszip.min.js"></script>
+	<script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.40.2/docxtemplater.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
+
+	<script src="episodecreator.js"></script>	
+</body>
+
+</html>
