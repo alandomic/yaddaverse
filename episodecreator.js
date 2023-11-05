@@ -47,6 +47,7 @@ function displaySessionData() {
 }
 
 function sendToBackend(inputInformation, promptType, callback) {
+    $('#loadingSpinner').show();
     // Prepare the data to send
     let dataToSend = {
         "input_information": inputInformation,
@@ -64,6 +65,7 @@ function sendToBackend(inputInformation, promptType, callback) {
             if (callback && typeof callback === 'function') {
                 callback(response);
             }
+	    $('#loadingSpinner').hide();
         },
         error: function(xhr, status, error) {
             // Handle error
@@ -81,7 +83,6 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
 		displaySessionData();
         // Handle when the "Generate Episode Outline" button is clicked
         $('#generateOutlineButton').click(function() {
-		$('#loadingSpinner').show();
 			jsonData["IP"] = $('#ip').val();
             jsonData.Characters = $('input[name="character"]:checked').map(function() { return this.value; }).get();
             jsonData["Plot Archetype"] = $('#plotType').val();
@@ -99,7 +100,6 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
 				jsonData.Outline = response.text;
 				// Update the sessionStorage or display the data as needed
 				sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
-				$('#loadingSpinner').hide();
 				window.location.href = "createdraft.html"; 
 			});
 		});
