@@ -15,17 +15,33 @@
 		font-weight: bold;
 		text-transform: uppercase;
 		}
+		.#overlay {
+		    position: fixed; /* Sit on top of the page content */
+		    display: none; /* Hidden by default */
+		    width: 100%; /* Full width */
+		    height: 100%; /* Full height */
+		    top: 0;
+		    left: 0;
+		    right: 0;
+		    bottom: 0;
+		    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+		    z-index: 2; /* Specify a stack order in case you're using a z-index scale */
+		    cursor: pointer; /* Add a pointer on hover */
+		}
 	</style>
 </head>
 <body>
 	<div class="ribbon">
 	  Episode Creation Tool
 	</div>
-	<div id="loadingSpinner" class="text-center" style="display: none;">
-    		<div class="spinner-border" role="status">
-        		<span class="visually-hidden">Loading...</span>
-    		</div>
+	<div id="overlay" style="display: none;">
+	    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+	        <div class="spinner-border text-primary" role="status">
+	            <span class="visually-hidden">Loading...</span>
+	        </div>
+	    </div>
 	</div>
+
 
     <div class="container">
         <h1 class="text-center mt-5 mb-5">Step 1 - Create Outline</h1>
