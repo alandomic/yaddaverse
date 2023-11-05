@@ -34,13 +34,6 @@
 	<div class="ribbon">
 	  Episode Creation Tool
 	</div>
-	<div id="overlay" style="display: none;">
-	    <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
-	        <div class="spinner-border text-primary" role="status">
-	            <span class="visually-hidden">Loading...</span>
-	        </div>
-	    </div>
-	</div>
 
 
     <div class="container">
@@ -112,7 +105,11 @@
         <!-- Row for Generate Button -->
         <div class="row mb-4">
             <div class="col-md-6 offset-md-3 text-center">
-                <button class="btn btn-primary" id="generateOutlineButton">Generate Episode Outline</button>
+                <button class="btn btn-primary" id="generateOutlineButton">
+			Generate Episode Outline
+		  	<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+			<span class="sr-only">Loading...</span>
+		</button>
             </div>
         </div>
     </div>
