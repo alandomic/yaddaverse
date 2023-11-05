@@ -68,6 +68,7 @@ function sendToBackend(inputInformation, promptType, callback) {
         error: function(xhr, status, error) {
             // Handle error
             console.error("Error occurred:", xhr, status, error);
+		$('#loadingSpinner').hide();
         }
     });
 }
@@ -80,6 +81,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
 		displaySessionData();
         // Handle when the "Generate Episode Outline" button is clicked
         $('#generateOutlineButton').click(function() {
+		$('#loadingSpinner').show();
 			jsonData["IP"] = $('#ip').val();
             jsonData.Characters = $('input[name="character"]:checked').map(function() { return this.value; }).get();
             jsonData["Plot Archetype"] = $('#plotType').val();
@@ -97,6 +99,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
 				jsonData.Outline = response.text;
 				// Update the sessionStorage or display the data as needed
 				sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+				$('#loadingSpinner').hide();
 				window.location.href = "createdraft.html"; 
 			});
 		});
