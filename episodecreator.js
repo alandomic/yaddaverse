@@ -75,8 +75,8 @@ function sendToBackend(buttonSelector, inputInformation, promptType, callback) {
         error: function(xhr, status, error) {
             // Handle error
             console.error("Error occurred:", xhr, status, error);  
-	}
-	complete: function() {
+		},	
+		complete: function() {
             // Always re-enable the button and hide the spinner after the AJAX call
             $button.prop('disabled', false);
             $spinner.hide();
@@ -104,7 +104,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
 					   `Custom Plot Details: ${jsonData["Custom Plot Details"]}\n` +
 					   `Plot Focuses on: ${jsonData["Plot Focuses on"]}`;
 
-			sendToBackend(inputInformation, 'generate_outline', function(response) {
+			sendToBackend('#generateOutlineButton', inputInformation, 'generate_outline', function(response) {
 				// Update jsonData with the response
 				jsonData.Outline = response.text;
 				// Update the sessionStorage or display the data as needed
