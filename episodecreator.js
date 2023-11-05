@@ -12,7 +12,8 @@ let jsonData = {
         { "Act": 1, "Scenes": ["", "", ""] },
         { "Act": 2, "Scenes": ["", "", "", ""] },
         { "Act": 3, "Scenes": ["", "", "", ""] }
-    ]
+    ],
+	"Final Draft Text": ""
 };
 
 function loadJsonDataFromSession() {
@@ -45,22 +46,61 @@ function displaySessionData() {
     $('#sessionDataDisplay').text(sessionData);
 }
 
+function sendToBackend(inputInformation, promptType, callback) {
+    // Prepare the data to send
+    let dataToSend = {
+        "input_information": inputInformation,
+        "prompt_type": promptType
+    };
+
+    // Perform the AJAX request to the backend
+    $.ajax({
+        url: 'https://yaddaverse.azurewebsites.net/api/openai',  // The endpoint where your Flask app is expecting the POST request
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(dataToSend),
+        success: function(response) {
+            // If the request was successful, execute the callback with the response
+            if (callback && typeof callback === 'function') {
+                callback(response);
+            }
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error("Error occurred:", xhr, status, error);
+        }
+    });
+}
+
+
 // Page 1 - Initialization and Event Handlers
 if (document.title === "Yaddaverse - Episode Creator Step 1") {
     $(document).ready(function() {
         loadJsonDataFromSession();
 		displaySessionData();
         // Handle when the "Generate Episode Outline" button is clicked
-        $('.btn-primary').click(function() {
+        $('#generateOutlineButton').click(function() {
 			jsonData["IP"] = $('#ip').val();
             jsonData.Characters = $('input[name="character"]:checked').map(function() { return this.value; }).get();
             jsonData["Plot Archetype"] = $('#plotType').val();
             jsonData["Custom Plot Details"] = $('#customPlot').val();
             jsonData["Plot Focuses on"] = $('#episodeFocus').val();
-			sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
-			window.location.href = "createdraft.html"; 
-        });
-    });
+
+			let inputInformation = `IP: ${jsonData["IP"]}\n` +
+					   `Characters: ${jsonData["Characters"].join(', ')}\n` +
+					   `Plot Archetype: ${jsonData["Plot Archetype"]}\n` +
+					   `Custom Plot Details: ${jsonData["Custom Plot Details"]}\n` +
+					   `Plot Focuses on: ${jsonData["Plot Focuses on"]}`;
+
+			sendToBackend(inputInformation, 'generate_outline', function(response) {
+				// Update jsonData with the response
+				jsonData.Outline = response.text;
+				// Update the sessionStorage or display the data as needed
+				sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+				window.location.href = "createdraft.html"; 
+			});
+		});
+	});
 }
 
 // Page 2 - Initialization and Event Handlers
@@ -68,6 +108,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 2") {
     $(document).ready(function() {
 		loadJsonDataFromSession();
 		displaySessionData();
+		$('#outline').val(jsonData.Outline);
         // Handle when the "Generate Draft" button is clicked
         $('.btn-primary').click(function() {
             jsonData.Outline = $('#outline').val();
@@ -116,7 +157,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
 				var doc = new docxtemplater().loadZip(zip);
 
 				// Set the content of the document
-				doc.setData({ content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sit amet." });
+				doc.setData({ content: jsonData["Final Draft Text"] });
 
 				try {
 					doc.render();
