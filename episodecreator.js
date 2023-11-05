@@ -47,7 +47,7 @@ function displaySessionData() {
 }
 
 function sendToBackend(inputInformation, promptType, callback) {
-    $('#loadingSpinner').show();
+	$('#overlay').fadeIn(); // Use jQuery's fadeIn to show the overlay smoothly
     // Prepare the data to send
     let dataToSend = {
         "input_information": inputInformation,
@@ -65,12 +65,12 @@ function sendToBackend(inputInformation, promptType, callback) {
             if (callback && typeof callback === 'function') {
                 callback(response);
             }
-	    $('#loadingSpinner').hide();
+	        $('#overlay').fadeOut(); // Use fadeOut to hide the overlay smoothly
         },
         error: function(xhr, status, error) {
             // Handle error
             console.error("Error occurred:", xhr, status, error);
-		$('#loadingSpinner').hide();
+		$('#overlay').fadeOut(); // Use fadeOut to hide the overlay smoothly
         }
     });
 }
