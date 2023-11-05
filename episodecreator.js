@@ -46,8 +46,14 @@ function displaySessionData() {
     $('#sessionDataDisplay').text(sessionData);
 }
 
-function sendToBackend(inputInformation, promptType, callback) {
-	$('#overlay').fadeIn(); // Use jQuery's fadeIn to show the overlay smoothly
+function sendToBackend(buttonSelector, inputInformation, promptType, callback) {
+	// Get the button and spinner elements
+    let $button = $(buttonSelector);
+    let $spinner = $button.find('.spinner-border');
+
+    // Disable the button and show the spinner
+    $button.prop('disabled', true);
+    $spinner.show();
     // Prepare the data to send
     let dataToSend = {
         "input_information": inputInformation,
@@ -65,12 +71,15 @@ function sendToBackend(inputInformation, promptType, callback) {
             if (callback && typeof callback === 'function') {
                 callback(response);
             }
-	        $('#overlay').fadeOut(); // Use fadeOut to hide the overlay smoothly
         },
         error: function(xhr, status, error) {
             // Handle error
-            console.error("Error occurred:", xhr, status, error);
-		$('#overlay').fadeOut(); // Use fadeOut to hide the overlay smoothly
+            console.error("Error occurred:", xhr, status, error);  
+	}
+	complete: function() {
+            // Always re-enable the button and hide the spinner after the AJAX call
+            $button.prop('disabled', false);
+            $spinner.hide();
         }
     });
 }
@@ -137,7 +146,6 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
 			let sceneIndex = $(this).closest('.scene').index();
 			let sceneTextarea = $(this).siblings('textarea');
 			let selectedActNumber = parseInt($('#act-selector').val().replace('act', ''));
-			
 			jsonData.Acts[selectedActNumber - 1].Scenes[sceneIndex] = sceneTextarea.val();
 			sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
 		});
