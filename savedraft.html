@@ -47,6 +47,12 @@
 			width: 100px; 
 			margin-left: 20px; 
 		}
+		.spinner-margin {
+			margin-left: 5px; /* Adjust the value as needed */
+		}
+		.rewrite-spinner-margin {
+			margin-left: 7px; /* Adjust the value as needed */
+		}
     </style>
 </head>
 
@@ -74,8 +80,10 @@
     </div>
 
     <div class="center-btn mt-5">
-        <button class="btn btn-success" id="save-draft">Save Draft to Disk</button>
-    </div>
+        <button class="btn btn-success" id="saveDraft">Save Draft as .docx File
+		<span class="spinner-border spinner-margin spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+		</button>
+	</div>
 	</div>
 	<pre id="sessionDataDisplay"></pre>
 
