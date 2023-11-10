@@ -103,7 +103,7 @@ function sendToBackend(buttonSelector, sceneHeader, promptType, callback) {
 
     // Perform the AJAX request to the backend
     $.ajax({
-        url: 'http://127.0.0.1:80/api/openai',  // The endpoint where your Flask app is expecting the POST request
+        url: 'https://yaddaverse.azurewebsites.net/api/openai',  // The endpoint where your Flask app is expecting the POST request
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(dataToSend),
