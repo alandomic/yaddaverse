@@ -1,81 +1,13 @@
 let jsonData = {
-    "IP": "",
+    "TV show IP": "",
+    "Characters": "Chandler, Joey, Monica, Phoebe, Rachel, Ross",
     "Plot Archetype": "",
     "Custom Plot Details": "",
     "Plot Focuses on": "",
     "Outline": "",
     "Outline Editing Instructions": "",
-    "Number of Acts": 4,
-    "Scenes": [
-        {
-            "Act": 1,
-            "Scenes": [
-                {
-                    "header": "Act 1, Scene 1",
-                    "summary": "Chandler expresses his hesitancy to attend the seminar to Monica and Rachel. Chandler is hesitant about attending the seminar, worried that his lack of a college degree will make him stand out. Monica and Rachel convince him to go, promising to support him and join him for the seminar.",
-                    "text": "",
-                    "editing instructions": ""
-                },
-                {
-                    "header": "Act 1, Scene 2",
-                    "summary": "Joey and Ross decide to tag along. After Chandler agrees to attend the seminar, Joey and Ross decide to join him, hoping to impress the ladies. Chandler is not pleased with this development but agrees to let them come along.",
-                    "text": "",
-                    "editing instructions": ""
-                }
-            ]
-        },
-        {
-            "Act": 2,
-            "Scenes": [
-                {
-                    "header": "Act 2, Scene 1",
-                    "summary": "Chandler panics about public speaking. As he waits to give his speech, Chandler confides in his friends about his fear of public speaking. They all encourage him and offer their support.",
-                    "text": "",
-                    "editing instructions": ""
-                },
-                {
-                    "header": "Act 2, Scene 2",
-                    "summary": "The group helps Chandler prepare for his speech. The others rally together to help Chandler overcome his anxiety. They come up with a plan to help him practice and feel more confident before giving his speech.",
-                    "text": "",
-                    "editing instructions": ""
-                }
-            ]
-        },
-        {
-            "Act": 3,
-            "Scenes": [
-                {
-                    "header": "Act 3, Scene 1",
-                    "summary": "Monica and Rachel take a cooking class. While Chandler is at the seminar, Monica and Rachel decide to take a cooking class. They hope to improve their skills and have a fun day together.",
-                    "text": "",
-                    "editing instructions": ""
-                },
-                {
-                    "header": "Act 3, Scene 2",
-                    "summary": "Joey and Ross join the cooking class. Joey and Ross happen to be taking a class in the same building and decide to join Monica and Rachel in the cooking class. Their competitive nature and attempts to impress the instructor cause chaos in the kitchen.",
-                    "text": "",
-                    "editing instructions": ""
-                }
-            ]
-        },
-        {
-            "Act": 4,
-            "Scenes": [
-                {
-                    "header": "Act 4, Scene 1",
-                    "summary": "Chandler delivers a successful speech. With the support and help of his friends, Chandler overcomes his fear and gives a great speech at the seminar. The audience is impressed and Chandler feels a sense of accomplishment.",
-                    "text": "",
-                    "editing instructions": ""
-                },
-                {
-                    "header": "Act 4, Scene 2",
-                    "summary": "The group celebrates with a home-cooked meal. To celebrate Chandler's success, the group decides to use the skills they learned in the cooking class to prepare a meal together. They reflect on how they worked together to overcome their challenges.",
-                    "text": "",
-                    "editing instructions": ""
-                }
-            ]
-        }
-    ],
+    "Number of Acts": null,
+    "Scenes": [],
     "FinalDraftText": "",
     "EpisodeTitle": ""
 }
@@ -92,6 +24,67 @@ function displaySessionData() {
     const sessionData = sessionStorage.getItem("jsonData");
     $('#sessionDataDisplay').text(sessionData);
 }
+
+
+function filterOAIOutputString(text) {
+    const lines = text.split('\n');
+    let filteredLines = [];
+
+    for (let line of lines) {
+        if (line.trim() === "") continue; // Skip blank lines
+        else if (line.toLowerCase().startsWith("title:")) continue; // Skip lines starting with "Title:"
+        else if (line.length < 30) continue;
+        else if (line.toLowerCase().startsWith("summary: ")) {
+            // Remove "Summary: " but keep the rest of the line
+            filteredLines.push(line.slice(9));
+        } else if (line.toLowerCase().startsWith("outline: ")) {
+            // Remove "Outline: " but keep the rest of the line
+            filteredLines.push(line.slice(9));
+        } else if (line.toLowerCase().startsWith("revised: ")) {
+            // Remove "Outline: " but keep the rest of the line
+            filteredLines.push(line.slice(9));
+        } else if (line.toLowerCase().startsWith("rewritten: ")) {
+            filteredLines.push(line.slice(11));
+        } else if (line.toLowerCase().startsWith("rewritten scene summary: ")) {
+            filteredLines.push(line.slice(25));
+        } else if (line.toLowerCase().startsWith("scene summary: ")) {
+            filteredLines.push(line.slice(15));
+        } else if (line.startsWith('"') && line.endsWith('"')) {
+            filteredLines.push(line.slice(1, -1));
+        } else {
+            // Keep other lines as they are
+            filteredLines.push(line);
+        }
+    }
+
+    return filteredLines.join('\n');
+}
+
+function filterOAITitle(str) {
+    // Trim whitespace from the start and end of the string
+    str = str.trim();
+
+    // Check if the first and last characters are quotes
+    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+        // Remove the first and last characters
+        str = str.substring(1, str.length - 1);
+    }
+
+    return str;
+}
+
+
+function filterFinalDraftText(text) {
+    const lines = text.split('\n');
+    let filteredLines = [];
+
+    for (let line of lines) {
+        if (line.startsWith("Act") && line.includes("Scene")) continue;
+        else filteredLines.push(line);
+    }
+    return filteredLines.join('\n');
+}
+
 
 function sendToBackend(buttonSelector, sceneHeader, promptType, callback) {
     // Get the button and spinner elements
@@ -110,7 +103,7 @@ function sendToBackend(buttonSelector, sceneHeader, promptType, callback) {
 
     // Perform the AJAX request to the backend
     $.ajax({
-        url: 'https://yaddaverse.azurewebsites.net/api/openai',  // The endpoint where your Flask app is expecting the POST request
+        url: 'http://127.0.0.1:80/api/openai',  // The endpoint where your Flask app is expecting the POST request
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(dataToSend),
@@ -148,8 +141,8 @@ function populateScenesForAct(actNumber) {
             <div class="col-md-3 scene">
                 <h5>${scene.header}</h5>
                 <textarea class="form-control mb-3" rows="10">${scene.summary || ''}</textarea>
-                <p>Rewriting instructions (optional)</p>
-                <input type="text" class="form-control mb-3" placeholder="e.g. 'Make it more lighthearted">
+                <p>Rewriting instructions</p>
+                <input type="text" class="form-control mb-3" placeholder="e.g. Add more conflict">
                 <button class="btn btn-secondary mb-3 edit-scene-btn" data-act-number="${actNumber}" data-scene-index="${index}">Rewrite Scene</button>
             </div>
         `;
@@ -161,13 +154,19 @@ function populateScenesForAct(actNumber) {
         let button = $(this); // Save the reference to the button
         let currentSceneTextarea = button.closest('.scene').find('textarea');
         let currentSceneSummary = currentSceneTextarea.val(); // Get current value of textarea
+        let currentSceneInput = button.closest('.scene').find('input');
+        let currentSceneEditingInstructions = currentSceneInput.val(); // Get current value of input
         let sceneHeader = jsonData.Scenes.find(act => act.Act === actNumber).Scenes[sceneIndex].header;
         // Update the jsonData with the current summary from the textarea
         jsonData.Scenes.find(act => act.Act === actNumber).Scenes[sceneIndex].summary = currentSceneSummary;
-		// Make sure spinner element exists in the button HTML
-		button.append('<span class="spinner-border rewrite-spinner-margin spinner-border-sm" role="status" aria-hidden="true"></span>');
+        jsonData.Scenes.find(act => act.Act === actNumber).Scenes[sceneIndex].editingInstructions = currentSceneEditingInstructions;
+        // Make sure spinner element exists in the button HTML
+        if (button.find('.spinner-border').length === 0) {
+            button.append('<span class="spinner-border rewrite-spinner-margin spinner-border-sm" role="status" aria-hidden="true"></span>');
+        }
         sendToBackend(button, sceneHeader,'edit_scene', function(response) {
-            let newSummary = response.text;
+            filteredSceneSummary = filterOAIOutputString(response.text);
+            let newSummary = filteredSceneSummary;
             // Update jsonData with the new summary
             jsonData.Scenes.find(act => act.Act === actNumber)
                 .Scenes[sceneIndex].summary = newSummary;
@@ -186,25 +185,52 @@ function textToJson(text) {
 
     actSections.forEach((actSection) => {
         const lines = actSection.trim().split('\n').filter(line => line); // remove empty lines
-        lines.forEach((line) => {
-            const [actScene, content] = line.split(':');
-            const [act, scene] = actScene.replace(",", "").split(' Scene ');
-            const header = `Act ${act}, Scene ${scene}`;
-            const summaryContent = content.trim();
 
-            // Append to act data, creating the list if necessary
-            actData[`Act ${act}`] = actData[`Act ${act}`] || [];
-            actData[`Act ${act}`].push({
-                header: header,
-                summary: summaryContent,
-                text: "",
-                editingInstructions: ""
-            });
-        });
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            if (line.length < 20) {
+                // If the line is under 20 characters, treat as header
+                const actScene = line;
+                const [act, scene] = actScene.replace(",", "").split(' Scene ');
+                const header = `Act ${act}, Scene ${scene}`;
+
+                let summaryContent = '';
+                if (i + 1 < lines.length) {
+                    summaryContent = lines[i + 1].trim();
+                    i++; // Increment to skip the next line as it's already processed
+                }
+
+                // Append to act data, creating the list if necessary
+                actData[`Act ${act}`] = actData[`Act ${act}`] || [];
+                actData[`Act ${act}`].push({
+                    header: header,
+                    summary: summaryContent,
+                    text: "",
+                    editingInstructions: ""
+                });
+            } else {
+                // If the line is 20 characters or more, process as content
+                const [actScene, content] = line.split(':');
+                const [act, scene] = actScene.replace(",", "").split(' Scene ');
+                const header = `Act ${act}, Scene ${scene}`;
+                const summaryContent = content.trim();
+
+                // Append to act data, creating the list if necessary
+                actData[`Act ${act}`] = actData[`Act ${act}`] || [];
+                actData[`Act ${act}`].push({
+                    header: header,
+                    summary: summaryContent,
+                    text: "",
+                    editingInstructions: ""
+                });
+            }
+        }
     });
 
     return actData;
 }
+
 
 function integrateScenes(pythonOutput) {
     // Create an array to hold the new scenes structure
@@ -218,7 +244,9 @@ function integrateScenes(pythonOutput) {
         // Map the scenes to the structure expected in jsonData
         const scenesForAct = pythonOutput[act].map(scene => ({
             "header": scene.header,
-            "text": scene.text
+            "summary": scene.summary,
+            "text": "",
+            "editingInstructions": ""
         }));
 
         // Add the scenes to the newScenes array
@@ -234,6 +262,10 @@ function integrateScenes(pythonOutput) {
     return newScenes;
 }
 
+let ipDictionary = {
+    "Friends": "Friends (1994-2004)"
+};
+
 // Page 1 - Initialization and Event Handlers
 if (document.title === "Yaddaverse - Episode Creator Step 1") {
     $(document).ready(function() {
@@ -241,19 +273,15 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
         displaySessionData();
         // Handle when the "Generate Episode Outline" button is clicked
         $('#generateOutlineButton').click(function() {
-            jsonData["IP"] = $('#ip').val();
+            jsonData["TV show IP"] = ipDictionary[$('#ip').val()];
             jsonData["Plot Archetype"] = $('#plotType').val();
             jsonData["Custom Plot Details"] = $('#customPlot').val();
             jsonData["Plot Focuses on"] = $('#episodeFocus').val();
 
-            let inputInformation = `IP: ${jsonData["IP"]}\n` +
-                `Plot Archetype: ${jsonData["Plot Archetype"]}\n` +
-                `Custom Plot Details: ${jsonData["Custom Plot Details"]}\n` +
-                `Plot Focuses on: ${jsonData["Plot Focuses on"]}`;
-
             sendToBackend('#generateOutlineButton', null, 'generate_outline', function(response) {
                 // Update jsonData with the response
-                jsonData.Outline = response.text;
+                filteredOutline = filterOAIOutputString(response.text)
+                jsonData.Outline = filteredOutline;
                 // Update the sessionStorage or display the data as needed
                 sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
                 window.location.href = "createdraft.html";
@@ -265,21 +293,20 @@ if (document.title === "Yaddaverse - Episode Creator Step 1") {
 // Page 2 - Initialization and Event Handlers
 if (document.title === "Yaddaverse - Episode Creator Step 2") {
     $(document).ready(function() {
-		$('.spinner-border').hide();
+        $('.spinner-border').hide();
         loadJsonDataFromSession();
         displaySessionData();
         $('#outline').val(jsonData.Outline);
         // Handle when the "Generate Draft" button is clicked
         $('#editOutlineButton').click(function() {
-            jsonData["Outline Editing Instructions"] = $('#editOutline').val();
-
-            let inputInformation = `Outline: ${jsonData["Outline"]}\n` +
-                `Outline Editing Instructions: ${jsonData["Outline Editing Instructions"]}\n`;
+            jsonData["Outline Editing Instructions"] = $('#editingInstructions').val();
+            jsonData["Outline"] = $('#outline').val();
 
             sendToBackend('#editOutlineButton', null, 'edit_outline', function(response) {
                 // Update jsonData with the response
                 jsonData.Outline = response.text;
                 // Update the sessionStorage or display the data as needed
+                $('#outline').val(jsonData.Outline);
                 sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
             });
         });
@@ -287,10 +314,6 @@ if (document.title === "Yaddaverse - Episode Creator Step 2") {
         $('#generateDraftButton').click(function() {
             jsonData.Outline = $('#outline').val();
             jsonData["Number of Acts"] = $('#acts').val();
-
-            let inputInformation = `Number of Acts: ${jsonData["Number of Acts"]}
-			Outline: ${jsonData["Outline"]}`;
-
             sendToBackend('#generateDraftButton', null, 'generate_draft', function(response) {
                 // Update jsonData with the response
                 const jsonStructure = textToJson(response.text);
@@ -332,6 +355,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
         });
         $('#saveDraft').click(function() {
             sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+
             function expandScenes(jsonData) {
                 let scenes = jsonData.Scenes;
                 let promises = [];
@@ -339,7 +363,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
                 scenes.forEach((act) => {
                     act.Scenes.forEach((scene) => {
                         let promise = new Promise((resolve) => {
-                            sendSceneToBackend('#saveDraft', scene.header, "expand_scene", function(response) {
+                            sendToBackend('#saveDraft', scene.header, "expand_scene", function(response) {
                                 scene.text = response.text;
                                 resolve();
                             });
@@ -348,72 +372,75 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
                     });
                 });
 
-                Promise.all(promises).then(() => {
-                    sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
-                });
+                return Promise.all(promises);
             }
-            expandScenes(jsonData);
+
             function concatenateSceneTexts(jsonData) {
                 let concatenatedText = "";
 
-                // Iterate through each 'Act' in the 'Scenes' array
                 jsonData.Scenes.forEach(act => {
                     act.Scenes.forEach(scene => {
-                        // Check if 'text' is not an empty string
                         if (scene.text) {
                             concatenatedText += scene.text + "\n\n";
                         }
                     });
                 });
 
-                // Remove the last two newline characters from the end of the string if it exists
                 concatenatedText = concatenatedText.trimEnd();
-
                 return concatenatedText;
             }
-            jsonData.FinalDraftText = concatenateSceneTexts(jsonData)
-            sendToBackend('#saveDraft', null, 'create_title', function(response) {
-                jsonData.Title = response.text
+            expandScenes(jsonData).then(() => {
+                const rawScriptText = concatenateSceneTexts(jsonData);
+				jsonData.FinalDraftText = filterFinalDraftText(rawScriptText);
                 sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
-            });
-            fetch('template.docx')
-                .then(response => response.blob())
-                .then(blob => {
-                    var reader = new FileReader();
-                    reader.onload = function(event) {
-                        var content = event.target.result;
-                        createAndDownloadDocx(content, jsonData);
-                    };
-                    reader.readAsBinaryString(blob);
-                })
-            function createAndDownloadDocx(content, jsonData) {
-                // Create a zip instance and load the binary content
-                var zip = new PizZip(content);
+                new Promise((resolve) => {
+                    sendToBackend('#saveDraft', null, 'create_title', function(response) {
+                        jsonData.EpisodeTitle = filterOAITitle(response.text);
+                        resolve();
+                    });
+                }).then(() => {
+                    sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+                    fetch('http://localhost:8000/template.docx')
+                        .then(response => response.blob())
+                        .then(blob => {
+                            var reader = new FileReader();
+                            reader.onload = function(event) {
+                                var content = event.target.result;
+                                createAndDownloadDocx(content, jsonData);
+                            };
+                            reader.readAsBinaryString(blob);
+                        })
+                    function createAndDownloadDocx(content, jsonData) {
+                        // Create a zip instance and load the binary content
+                        var zip = new PizZip(content);
 
-                // Create a new instance of Docxtemplater using the zip instance
-                var doc = new Docxtemplater(zip);
+                        // Create a new instance of docxtemplater using the zip instance
+                        var doc = new docxtemplater(zip, { linebreaks: true });
 
-                doc.setData({
-                    TITLE_PLACEHOLDER: jsonData["FinalDraftTitle"].toUpperCase(),
-                    CONTENT_PLACEHOLDER: jsonData["FinalDraftContent"]
+                        doc.setData({
+                            TITLE_PLACEHOLDER: jsonData["EpisodeTitle"].toUpperCase(),
+                            CONTENT_PLACEHOLDER: jsonData["FinalDraftText"]
+                        });
+
+                        // Apply the data to the template
+                        doc.render();
+
+                        // Generate the .docx file content as a blob
+                        var blob = doc.getZip().generate({ type: 'blob' });
+
+                        // Create a download link and trigger the download
+                        var url = URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        const ipName = Object.keys(ipDictionary).find(key => ipDictionary[key] === jsonData["TV show IP"]);
+                        a.download = ipName + " - " + jsonData.EpisodeTitle + ".docx";
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
+                    }
                 });
-
-                // Apply the data to the template
-                doc.render();
-
-                // Generate the .docx file content as a blob
-                var blob = doc.getZip().generate({ type: 'blob' });
-
-                // Create a download link and trigger the download
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = jsonData.IP + " - " + jsonData.Title + ".docx";
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                a.remove();
-            }
+            });
         });
     });
-}
+}    
