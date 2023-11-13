@@ -142,7 +142,7 @@ function populateScenesForAct(actNumber) {
                 <h5>${scene.header}</h5>
                 <textarea class="form-control mb-3" rows="10">${scene.summary || ''}</textarea>
                 <p>Rewriting instructions</p>
-                <input type="text" class="form-control mb-3" placeholder="e.g. Add more conflict">
+                <input type="text" class="form-control mb-3" placeholder="E.g. ${getRandomPlotTwist()}">
                 <button class="btn btn-secondary mb-3 edit-scene-btn" data-act-number="${actNumber}" data-scene-index="${index}">Rewrite Scene</button>
             </div>
         `;
@@ -307,6 +307,31 @@ function integrateScenes(pythonOutput) {
     return newScenes;
 }
 
+
+let plotTwists = [
+    "Add an unexpected twist",
+    "Take out one character",
+    "Shift to a new location",
+    "Use a flashback or dream",
+    "Introduce a miscommunication",
+    "Add a funny prop",
+    "Add a mystery",
+    "Add a surprise guest",
+    "Break the fourth wall",
+    "Reference a character's history",
+    "Put in a subtle homage",
+    "Add a walrus",
+    "Add more conflict",
+    "Make it more upbeat"
+];
+
+// Function to get a random plot twist
+function getRandomPlotTwist() {
+    let randomIndex = Math.floor(Math.random() * plotTwists.length);
+    return plotTwists[randomIndex];
+}
+
+
 let ipDictionary = {
     "Friends": "Friends (1994-2004)"
 };
@@ -341,6 +366,8 @@ if (document.title === "Yaddaverse - Episode Creator Step 2") {
         $('.spinner-border').hide();
         loadJsonDataFromSession();
         displaySessionData();
+	let placeholderText = `E.g. '${getRandomPlotTwist()}', or '${getRandomPlotTwist()}'`
+	document.getElementById('editingInstructions').placeholder = placeholderText;
         $('#outline').val(jsonData.Outline);
         // Handle when the "Generate Draft" button is clicked
         $('#editOutlineButton').click(function() {
