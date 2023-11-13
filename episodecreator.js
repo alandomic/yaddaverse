@@ -5,7 +5,6 @@ let jsonData = {
     "Custom Plot Details": "",
     "Plot Focuses on": "",
     "Outline": "",
-    "Outline Editing Instructions": "",
     "Number of Acts": null,
     "Scenes": [],
     "FinalDraftText": "",
@@ -86,6 +85,7 @@ function filterFinalDraftText(text) {
 }
 
 
+
 function sendToBackend(buttonSelector, sceneHeader, promptType, callback) {
     // Get the button and spinner elements
     let $button = $(buttonSelector);
@@ -103,7 +103,7 @@ function sendToBackend(buttonSelector, sceneHeader, promptType, callback) {
 
     // Perform the AJAX request to the backend
     $.ajax({
-        url: 'https://yaddaverse.azurewebsites.net/api/openai',  // The endpoint where your Flask app is expecting the POST request
+        url: 'http://127.0.0.1:80/api/openai',  // The endpoint where your Flask app is expecting the POST request
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(dataToSend),
@@ -178,56 +178,101 @@ function populateScenesForAct(actNumber) {
     });
 }
 
+
+function extractActAndScene(stringContainingHeader) {
+    // Regular expression to find a number after "Act" and "Scene"
+    const actRegex = /Act\s+(\d+)/i;
+    const sceneRegex = /Scene\s+(\d+)/i;
+
+    let act = null;
+    let scene = null;
+
+    // Extracting the number following "Act"
+    const actMatch = stringContainingHeader.match(actRegex);
+    if (actMatch) {
+        act = parseInt(actMatch[1], 10);
+    }
+
+    // Extracting the number following "Scene"
+    const sceneMatch = stringContainingHeader.match(sceneRegex);
+    if (sceneMatch) {
+        scene = parseInt(sceneMatch[1], 10);
+    }
+
+    return { act, scene };
+}
+
+
+// Function to parse the input text and create a nested JSON structure
 function textToJson(text) {
-    // Split text into sections for each act
-    const actSections = text.trim().split("Act ").slice(1); // skip the first empty string
+
+    const lines = text.trim().split('\n').filter(line => line);
+
     const actData = {};
 
-    actSections.forEach((actSection) => {
-        const lines = actSection.trim().split('\n').filter(line => line); // remove empty lines
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
 
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i].trim();
-
-            if (line.length < 20) {
-                // If the line is under 20 characters, treat as header
-                const actScene = line;
-                const [act, scene] = actScene.replace(",", "").split(' Scene ');
-                const header = `Act ${act}, Scene ${scene}`;
-
-                let summaryContent = '';
-                if (i + 1 < lines.length) {
-                    summaryContent = lines[i + 1].trim();
-                    i++; // Increment to skip the next line as it's already processed
-                }
-
-                // Append to act data, creating the list if necessary
-                actData[`Act ${act}`] = actData[`Act ${act}`] || [];
-                actData[`Act ${act}`].push({
-                    header: header,
-                    summary: summaryContent,
-                    text: "",
-                    editingInstructions: ""
-                });
-            } else {
-                // If the line is 20 characters or more, process as content
-                const [actScene, content] = line.split(':');
-                const [act, scene] = actScene.replace(",", "").split(' Scene ');
-                const header = `Act ${act}, Scene ${scene}`;
-                const summaryContent = content.trim();
-
-                // Append to act data, creating the list if necessary
-                actData[`Act ${act}`] = actData[`Act ${act}`] || [];
-                actData[`Act ${act}`].push({
-                    header: header,
-                    summary: summaryContent,
-                    text: "",
-                    editingInstructions: ""
-                });
-            }
+        // Skip processing if the line is empty
+        if (line === '') {
+            return;
         }
-    });
+        if (line.length < 20) {
+            const { act, scene} = extractActAndScene(line)
+            const header = `Act ${act}, Scene ${scene}`;
+            let summaryContent = '';
+            if (i + 1 < lines.length) {
+                summaryContent = lines[i + 1].trim();
+                i++; // This will now correctly skip the next iteration
+            }
 
+            // Append to act data, creating the list if necessary
+            actData[`Act ${act}`] = actData[`Act ${act}`] || [];
+            actData[`Act ${act}`].push({
+                header: header,
+                summary: summaryContent,
+                text: "",
+                editingInstructions: ""
+            });
+        } else {
+            function splitSceneDescription(inputString) {
+                // Check if the first 20 characters include "Act" and "Scene"
+                const firstTwenty = inputString.substring(0, 20);
+                if (firstTwenty.includes("Act") && firstTwenty.includes("Scene")) {
+                    // Split the string into words
+                    const words = inputString.split(" ");
+                    let splitIndex = -1;
+                    for (let i = 0; i < words.length; i++) {
+                        if (words[i] !== "Act" && words[i] !== "Scene" && /^[a-zA-Z]+$/.test(words[i])) {
+                            // Found the first word that is not "Act" or "Scene"
+                            splitIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (splitIndex !== -1) {
+                        // Split the string at the found index
+                        const rawHeader = words.slice(0, splitIndex).join(" ");
+                        const summary = words.slice(splitIndex).join(" ");
+                        return { rawHeader, summary };
+                    }
+                }
+            }
+            const { rawHeader, summary } = splitSceneDescription(line);
+            const { act, scene} = extractActAndScene(rawHeader)
+            const header = `Act ${act}, Scene ${scene}`;
+            const summaryContent = summary.trim();
+
+            // Append to act data, creating the list if necessary
+            actData[`Act ${act}`] = actData[`Act ${act}`] || [];
+            actData[`Act ${act}`].push({
+                header: header,
+                summary: summaryContent,
+                text: "",
+                editingInstructions: ""
+            });
+        }
+    }
     return actData;
 }
 
@@ -355,6 +400,11 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
         });
         $('#saveDraft').click(function() {
             sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
+			// disabling button and revealing spinner
+			let $saveDraftbutton = $('#saveDraft');
+			let $saveDraftspinner = $saveDraftbutton.find('.spinner-border');
+			$saveDraftbutton.prop('disabled', true);
+			$saveDraftspinner.show();
 
             function expandScenes(jsonData) {
                 let scenes = jsonData.Scenes;
@@ -363,7 +413,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
                 scenes.forEach((act) => {
                     act.Scenes.forEach((scene) => {
                         let promise = new Promise((resolve) => {
-                            sendToBackend('#saveDraft', scene.header, "expand_scene", function(response) {
+                            sendToBackend(null, scene.header, "expand_scene", function(response) {
                                 scene.text = response.text;
                                 resolve();
                             });
@@ -394,7 +444,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
 				jsonData.FinalDraftText = filterFinalDraftText(rawScriptText);
                 sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
                 new Promise((resolve) => {
-                    sendToBackend('#saveDraft', null, 'create_title', function(response) {
+                    sendToBackend(null, null, 'create_title', function(response) {
                         jsonData.EpisodeTitle = filterOAITitle(response.text);
                         resolve();
                     });
@@ -438,9 +488,11 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
                         a.click();
                         window.URL.revokeObjectURL(url);
                         a.remove();
+						$saveDraftbutton.prop('disabled', false);
+						$saveDraftspinner.hide();
                     }
                 });
             });
-        });
+		});
     });
 }    
