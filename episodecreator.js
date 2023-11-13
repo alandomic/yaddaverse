@@ -331,6 +331,17 @@ function getRandomPlotTwist() {
     return plotTwists[randomIndex];
 }
 
+function getTwoUniquePlotTwists() {
+    let firstTwist = getRandomPlotTwist();
+    let secondTwist;
+
+    do {
+        secondTwist = getRandomPlotTwist();
+    } while (secondTwist === firstTwist);
+
+    return [firstTwist, secondTwist];
+}
+
 
 let ipDictionary = {
     "Friends": "Friends (1994-2004)"
@@ -366,7 +377,8 @@ if (document.title === "Yaddaverse - Episode Creator Step 2") {
         $('.spinner-border').hide();
         loadJsonDataFromSession();
         displaySessionData();
-	let placeholderText = `E.g. '${getRandomPlotTwist()}', or '${getRandomPlotTwist()}'`
+	let [firstTwist, secondTwist] = getTwoUniquePlotTwists();
+	let placeholderText = `E.g. '${firstTwist}', or '${secondTwist}'`
 	document.getElementById('editingInstructions').placeholder = placeholderText;
         $('#outline').val(jsonData.Outline);
         // Handle when the "Generate Draft" button is clicked
