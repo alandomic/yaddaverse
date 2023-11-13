@@ -103,7 +103,7 @@ function sendToBackend(buttonSelector, sceneHeader, promptType, callback) {
 
     // Perform the AJAX request to the backend
     $.ajax({
-        url: 'http://127.0.0.1:80/api/openai',  // The endpoint where your Flask app is expecting the POST request
+        url: 'yaddaverse.azurewebsites.net/api/openai',  // The endpoint where your Flask app is expecting the POST request
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(dataToSend),
@@ -450,7 +450,7 @@ if (document.title === "Yaddaverse - Episode Creator Step 3") {
                     });
                 }).then(() => {
                     sessionStorage.setItem("jsonData", JSON.stringify(jsonData));
-                    fetch('http://localhost:8000/template.docx')
+                    fetch('template.docx')
                         .then(response => response.blob())
                         .then(blob => {
                             var reader = new FileReader();
