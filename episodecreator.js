@@ -142,7 +142,7 @@ function populateScenesForAct(actNumber) {
                 <h5>${scene.header}</h5>
                 <textarea class="form-control mb-3" rows="10">${scene.summary || ''}</textarea>
                 <p>Rewriting instructions</p>
-                <input type="text" class="form-control mb-3" placeholder="E.g. ${getRandomPlotTwist()}">
+                <input type="text" class="form-control mb-3" placeholder="E.g. '${getRandomPlotTwist()}'">
                 <button class="btn btn-secondary mb-3 edit-scene-btn" data-act-number="${actNumber}" data-scene-index="${index}">Rewrite Scene</button>
             </div>
         `;
