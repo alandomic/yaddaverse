@@ -310,8 +310,8 @@ function integrateScenes(pythonOutput) {
 
 let plotTwists = [
     "Add an unexpected twist",
-    "Take out one character",
-    "Shift to a new location",
+    "Take one character out",
+    "Switch to a new location",
     "Use a flashback or dream",
     "Add a misunderstanding",
     "Add a funny prop",
